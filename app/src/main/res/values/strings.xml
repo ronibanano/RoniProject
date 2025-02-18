@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">RoniProject</string>
+    <string name="welcome_to_bookswap">WELCOME TO BOOKSWAP</string>
+    <string name="log_in">Login</string>
+    <string name="register">Register</string>
+    <string name="log_in_to_bookswap">Login to BOOKSWAP</string>
+    <string name="email">email</string>
+    <string name="password">password</string>
+    <string name="login">login</string>
+    <string name="click_to_register">Click to register</string>
+    <string name="register_to_bookswap">Register to BOOKSWAP</string>
+    <string name="full_name">full name</string>
+    <string name="city">city</string>
+    <string name="click_to_login">click to login</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

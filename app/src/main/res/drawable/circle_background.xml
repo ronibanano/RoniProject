@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <shape xmlns:android="http://schemas.android.com/apk/res/android"
+        android:shape="oval">
+
+        <!-- צבע הרקע של העיגול -->
+        <solid android:color="#FFBB86FC" />
+
+        <!-- גבול לעיגול (אופציונלי) -->
+        <stroke
+            android:width="2dp"
+            android:color="#FF3700B3" />
+
+        <!-- גודל מינימלי של העיגול -->
+        <size
+            android:width="120dp"
+            android:height="120dp" />
+    </shape>
+</selector>

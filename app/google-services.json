@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "524179929960",
+    "project_id": "projectroni-a804f",
+    "storage_bucket": "projectroni-a804f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:524179929960:android:81582ddf2771b63298b4dd",
+        "android_client_info": {
+          "package_name": "com.example.roniproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCE0v9l0VUTqlB9ZLMQAaCg1n_VVG5_4rU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
