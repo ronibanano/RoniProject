@@ -8,7 +8,7 @@
     android:gravity="center"
     android:orientation="vertical"
     android:textAlignment="center"
-    tools:context=".RegisertActivity">
+    tools:context=".Activities.RegisertActivity">
 
     <TextView
         android:layout_width="match_parent"
@@ -55,6 +55,15 @@
         android:hint="@string/city"
         android:textAlignment="center"
         android:textSize="24sp" />
+
+    <EditText
+        android:id="@+id/etPhoneNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/phone_number"
+        android:textAlignment="center"
+        android:textSize="24sp"
+        android:inputType="phone" />
 
     <ProgressBar
         android:id="@+id/progressBar"

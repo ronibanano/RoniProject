@@ -8,7 +8,7 @@
     android:gravity="center"
     android:orientation="vertical"
     android:textAlignment="center"
-    tools:context=".LoginActivity">
+    tools:context=".Activities.LoginActivity">
 
     <TextView
         android:layout_width="match_parent"

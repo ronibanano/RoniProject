@@ -1,0 +1,23 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <ListView
+        android:id="@+id/listBookResults"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:id="@+id/tvNoResults"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="לא נמצאו ספרים התואמים לחיפוש"
+        android:textSize="18sp"
+        android:textAlignment="center"
+        android:visibility="gone"
+        android:layout_marginTop="16dp"
+        android:textColor="@android:color/black"/>
+</LinearLayout>

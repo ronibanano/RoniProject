@@ -1,4 +1,4 @@
-package com.example.roniproject;
+package com.example.roniproject.Activities;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -12,14 +12,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
+import com.example.roniproject.HomeScreen;
+import com.example.roniproject.Obj.Users;
+import com.example.roniproject.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -32,7 +31,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisertActivity extends AppCompatActivity {
 
-    EditText etEmail, etPassword, etFullName, etCity;
+    EditText etEmail, etPassword, etFullName, etCity, etPhoneNumber;
     TextView tvClickLogin;
     Button btnRegister;
     ProgressBar progressBar;
@@ -50,6 +49,7 @@ public class RegisertActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         etFullName = findViewById(R.id.etFullName);
         etCity = findViewById(R.id.etCity);
+        etPhoneNumber = findViewById(R.id.etPhoneNumber);
         tvClickLogin = findViewById(R.id.loginNow);
         btnRegister = findViewById(R.id.btnRegister);
         progressBar = findViewById(R.id.progressBar);
@@ -70,14 +70,15 @@ public class RegisertActivity extends AppCompatActivity {
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email, password, fullName, city;
+                String email, password, fullName, city, phoneNumber;
                 progressBar.setVisibility(View.VISIBLE);
                 email = String.valueOf(etEmail.getText());
                 password = String.valueOf(etPassword.getText());
                 fullName = String.valueOf(etFullName.getText());
                 city = String.valueOf(etCity.getText());
+                phoneNumber = String.valueOf(etPhoneNumber.getText());
 
-                if (email.isEmpty() || password.isEmpty() || password.length() < 6 || fullName.isEmpty() || city.isEmpty()) {
+                if (email.isEmpty() || password.isEmpty() || password.length() < 6 || fullName.isEmpty() || city.isEmpty()|| phoneNumber.isEmpty()|| phoneNumber.length()!=10) {
                     adb.setMessage("Incorrect details");
                     adb.setPositiveButton("ok", new DialogInterface.OnClickListener() {
                         @Override
@@ -104,7 +105,7 @@ public class RegisertActivity extends AppCompatActivity {
                                     FirebaseUser user = mAuth.getCurrentUser();
 
                                     if (user != null) {
-                                        registerUser(user.getUid(), email, fullName, city);
+                                        registerUser(user.getUid(), email, fullName, city, phoneNumber);
                                     }
 
                                     Intent intent = new Intent(context, HomeScreen.class);
@@ -197,9 +198,9 @@ public class RegisertActivity extends AppCompatActivity {
 //
     }
 
-    private void registerUser(String userId,String email, String fullName, String city) {
+    private void registerUser(String userId,String email, String fullName, String city, String phoneNumber) {
         databaseReference = FirebaseDatabase.getInstance().getReference("Users");
-        Users user = new Users(email, fullName, city);
+        Users user = new Users(email, fullName, city, phoneNumber);
 
         databaseReference.child(userId).setValue(user)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {

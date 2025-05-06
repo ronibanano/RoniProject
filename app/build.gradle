@@ -46,7 +46,13 @@ dependencies {
     implementation libs.navigation.fragment
     implementation libs.navigation.ui
     implementation libs.firebase.storage
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
+    implementation libs.firebase.messaging
+    implementation libs.volley
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
+
+
 }

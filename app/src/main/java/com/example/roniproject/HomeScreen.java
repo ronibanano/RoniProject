@@ -7,6 +7,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 
+import com.example.roniproject.Frag.ChatFragment;
+import com.example.roniproject.Frag.HomeFragment;
+import com.example.roniproject.Frag.ProfileFragment;
+import com.example.roniproject.Frag.SearchFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class HomeScreen extends AppCompatActivity {
@@ -26,6 +30,7 @@ public class HomeScreen extends AppCompatActivity {
 
             if (item.getItemId() == R.id.profileFragment) {
                 selectedFragment = new ProfileFragment();
+
             } else if (item.getItemId() == R.id.homeFragment) {
                 selectedFragment = new HomeFragment();
             } else if (item.getItemId() == R.id.searchFragment) {

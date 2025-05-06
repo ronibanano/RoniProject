@@ -58,22 +58,12 @@
         android:layout_width="match_parent"
         android:layout_height="374dp" />
 
-    <!-- כפתור עגול להוספת ספרים -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <Button
         android:id="@+id/btn_add_book"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="16dp"
-        android:layout_marginStart="22dp"
-        android:layout_marginBottom="32dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:contentDescription="Add Book"
-        android:src="@drawable/ic_add"
-        app:backgroundTint="@color/black"
-        app:tint="@color/white" />
+        android:text="הוספת ספר"
+        android:textSize="20dp" />
 </LinearLayout>
 
 

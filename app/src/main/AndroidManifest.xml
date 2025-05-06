@@ -2,9 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <!-- הרשאות לקריאת/כתיבת קבצים מהגלריה -->
+
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- הרשאות לצילום תמונה באמצעות המצלמה -->
     <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- הרשאות הודעות -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -21,7 +28,13 @@
         android:theme="@style/Theme.RoniProject"
         tools:targetApi="31">
         <activity
-            android:name=".AddBook"
+            android:name=".Activities.ChatActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activities.SearchResultsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activities.AddBook"
             android:exported="false" />
         <activity
             android:name=".HomeScreen"
@@ -30,13 +43,13 @@
             android:name=".HomeScreen"
             android:exported="false" />
         <activity
-            android:name=".RegisertActivity"
+            android:name=".Activities.RegisertActivity"
             android:exported="false" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".Activities.LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".Activities.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -44,6 +57,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".Obj.MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
     </application>
+
+
+
 
 </manifest>
