@@ -13,6 +13,9 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true" />
@@ -26,7 +29,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.RoniProject"
-        tools:targetApi="31">
+        tools:targetApi="24">
         <activity
             android:name=".Activities.ChatActivity"
             android:exported="false" />
@@ -35,9 +38,6 @@
             android:exported="false" />
         <activity
             android:name=".Activities.AddBook"
-            android:exported="false" />
-        <activity
-            android:name=".HomeScreen"
             android:exported="false" />
         <activity
             android:name=".HomeScreen"
@@ -59,12 +59,8 @@
         </activity>
 
         <service
-            android:name=".Obj.MyFirebaseMessagingService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
+            android:name=".ChatNotificationService"
+            android:exported="false"/>
     </application>
 
 

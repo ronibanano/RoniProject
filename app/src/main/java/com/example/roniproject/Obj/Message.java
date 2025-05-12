@@ -5,7 +5,6 @@ public class Message {
     private String receiverId;
     private String text;
     private long timestamp;
-    private boolean isRead;
 
 
     public Message() {}
@@ -15,7 +14,6 @@ public class Message {
         this.receiverId = receiverId;
         this.text = text;
         this.timestamp = timestamp;
-        this.isRead = false;
     }
 
     public String getSenderId() { return senderId; }
@@ -29,8 +27,5 @@ public class Message {
 
     public long getTimestamp() { return timestamp; }
     public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
-
-    public boolean isRead() { return isRead; }
-    public void setIsRead(boolean isRead) { this.isRead = isRead; }
 
 }

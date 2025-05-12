@@ -4,6 +4,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,8 +16,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.roniproject.ChatNotificationService;
 import com.example.roniproject.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -32,37 +35,41 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // יצירת Notification Channel לאנדרואיד 8+
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(
-                    "chat_messages", // זהה למה שתשתמש בהתראה עצמה
-                    "הודעות צ'אט",
-                    NotificationManager.IMPORTANCE_HIGH
-            );
-            channel.setDescription("התראות עבור הודעות חדשות בצ'אט");
+        // איפוס הדגל של serviceStarted כשנכנסים מחדש לאפליקציה
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+        prefs.edit().remove("serviceStarted").apply();
 
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            if (manager != null) {
-                manager.createNotificationChannel(channel);
-            }
-        }
-
-        FirebaseMessaging.getInstance().getToken()
-                .addOnCompleteListener(task -> {
-                    if (!task.isSuccessful()) {
-                        Log.w("FCM", "Fetching FCM registration token failed", task.getException());
-                        return;
-                    }
-
-                    String token = task.getResult();
-                    Log.d("FCM", "Token: " + token);
-
-                    FirebaseAuth auth = FirebaseAuth.getInstance();
-                    if (auth.getCurrentUser() != null) {
-                        String uid = auth.getCurrentUser().getUid();
-                        FirebaseDatabase.getInstance().getReference("Users").child(uid).child("fcmToken").setValue(token);
-                    }
-                });
+//        // יצירת Notification Channel לאנדרואיד 8+
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            NotificationChannel channel = new NotificationChannel(
+//                    "chat_messages", // זהה למה שתשתמש בהתראה עצמה
+//                    "הודעות צ'אט",
+//                    NotificationManager.IMPORTANCE_HIGH
+//            );
+//            channel.setDescription("התראות עבור הודעות חדשות בצ'אט");
+//
+//            NotificationManager manager = getSystemService(NotificationManager.class);
+//            if (manager != null) {
+//                manager.createNotificationChannel(channel);
+//            }
+//        }
+//
+//        FirebaseMessaging.getInstance().getToken()
+//                .addOnCompleteListener(task -> {
+//                    if (!task.isSuccessful()) {
+//                        Log.w("FCM", "Fetching FCM registration token failed", task.getException());
+//                        return;
+//                    }
+//
+//                    String token = task.getResult();
+//                    Log.d("FCM", "Token: " + token);
+//
+//                    FirebaseAuth auth = FirebaseAuth.getInstance();
+//                    if (auth.getCurrentUser() != null) {
+//                        String uid = auth.getCurrentUser().getUid();
+//                        FirebaseDatabase.getInstance().getReference("Users").child(uid).child("fcmToken").setValue(token);
+//                    }
+//                });
 
         btnChooseLogin = findViewById(R.id.btnChooseLogin);
         btnChooseRegister = findViewById(R.id.btnChooseRegister);
@@ -77,5 +84,6 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
     }
+
 
 }

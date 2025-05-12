@@ -106,10 +106,6 @@ public class ChatActivity extends AppCompatActivity {
                 for (DataSnapshot msgSnap : snapshot.getChildren()) {
                     Message msg = msgSnap.getValue(Message.class);
                     if (msg != null) {
-                        // אם ההודעה מיועדת אליי והיא לא נקראה - נעדכן ל־true
-                        if (msg.getReceiverId() != null && msg.getReceiverId().equals(currentUser.getUid()) && !msg.isRead()) {
-                            msgSnap.getRef().child("isRead").setValue(true);
-                        }
                         messageList.add(msg);
                     }
                 }

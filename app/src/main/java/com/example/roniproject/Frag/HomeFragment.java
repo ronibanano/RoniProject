@@ -1,8 +1,11 @@
 package com.example.roniproject.Frag;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -55,7 +58,28 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // Add your code here
+
+        // התחלת שירות ChatNotificationService רק אם לא הופעל כבר
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            SharedPreferences prefs = requireContext().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+            boolean serviceStarted = prefs.getBoolean("serviceStarted", false);
+
+            if (!serviceStarted) {
+                Intent serviceIntent = new Intent(requireContext(), com.example.roniproject.ChatNotificationService.class);
+                serviceIntent.putExtra("userId", currentUser.getUid());
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    requireContext().startForegroundService(serviceIntent);
+                } else {
+                    requireContext().startService(serviceIntent);
+                }
+
+                prefs.edit().putBoolean("serviceStarted", true).apply(); // סימון שהשירות הופעל
+            }
+        }
+
+
         btnRefresh = view.findViewById(R.id.btn_refresh);
         allbooksList = view.findViewById(R.id.allbooksList);
 

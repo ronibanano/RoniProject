@@ -3,9 +3,11 @@ package com.example.roniproject.Activities;
 import static com.example.roniproject.FBRef.refBooks;
 
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -21,6 +23,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.roniproject.Obj.Book;
 import com.example.roniproject.R;
@@ -98,10 +102,16 @@ public class AddBook extends AppCompatActivity {
     }
 
     public void takeStamp(View view) {
-        Intent takePicIntent = new Intent();
-        takePicIntent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePicIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePicIntent, REQUEST_CAMERA);
+        // בדיקת הרשאות מצלמה
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 100);
+        } else {
+            // הרשאה כבר קיימת - הפעלת המצלמה
+            Intent takePicIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (takePicIntent.resolveActivity(getPackageManager()) != null) {
+                startActivityForResult(takePicIntent, REQUEST_CAMERA);
+            }
         }
     }
 
@@ -265,6 +275,20 @@ public class AddBook extends AppCompatActivity {
                     }
                 });
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == 100) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                takeStamp(null); // נקרא שוב למתודה אחרי שהמשתמש אישר
+            } else {
+                Toast.makeText(this, "Camera permission is required", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
 
 
 
