@@ -4,6 +4,13 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <Button
+        android:id="@+id/btnFilter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="סנן לפי ה-a,b,c"
+        android:textSize="20dp"/>
+
     <ListView
         android:id="@+id/listBookResults"
         android:layout_width="match_parent"

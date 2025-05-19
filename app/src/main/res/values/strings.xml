@@ -16,4 +16,12 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="phone_number">phone number</string>
     <string name="refresh">refresh</string>
+    <string name="enter_your_search">enter your search</string>
+
+    <string-array name="choice_array">
+        <item>book name</item>
+        <item>author</item>
+        <item>genre</item>
+        <item>location</item>
+    </string-array>
 </resources>

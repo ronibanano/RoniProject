@@ -34,8 +34,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -51,13 +53,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class AddBook extends AppCompatActivity {
-
-//    private String lastStamp, lastGallery;
-//    private String currentPath;
-//    private StorageReference refImg;
-//    private File localFile;
-//    private static final int REQUEST_STAMP_CAPTURE = 201;
-//    private static final int REQUEST_PICK_IMAGE = 301;
 
     private static final int REQUEST_CAMERA = 1;
     private static final int REQUEST_GALLERY = 2;
@@ -128,16 +123,6 @@ public class AddBook extends AppCompatActivity {
             if (requestCode == REQUEST_CAMERA) {
                 chooseCamera = true;
                 Bitmap imageBitmap = (Bitmap) data.getExtras().get("data");
-                //ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                //imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-                //byte[] dataBytes = baos.toByteArray();
-//                String s = null;
-//                try {
-//                    s = new String(dataBytes, "UTF-8");
-//                } catch (UnsupportedEncodingException e) {
-//                    throw new RuntimeException(e);
-//                }
-//                imageUri = Uri.parse(s);
                 imageUri=getImageUri(imageBitmap);
                 ivBookCover.setImageBitmap(imageBitmap);
             } else if (requestCode == REQUEST_GALLERY) {
@@ -146,21 +131,50 @@ public class AddBook extends AppCompatActivity {
                 ivBookCover.setImageURI(imageUri);
             }
         }
-    }
 
-//    private Uri getImageUri(byte[] dataBytes) {
-//        // Placeholder function to create Uri from byte array if needed.
-//        return null;
-//    }
+        if (requestCode == REQUEST_CAMERA) {
+            chooseCamera = true;
+            Bitmap imageBitmap = (Bitmap) data.getExtras().get("data");
+            imageUri = getImageUri(imageBitmap);
+            if (imageUri != null) {
+                ivBookCover.setImageBitmap(imageBitmap);
+            } else {
+                Toast.makeText(this, "Failed to get image URI", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+    }
 
     private Uri getImageUri(Bitmap bitmap) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "book_image", null);
-        return Uri.parse(path);
+        try {
+            File tempFile = File.createTempFile("book_image", ".jpg", getCacheDir());
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            byte[] bitmapData = out.toByteArray();
+
+            java.io.FileOutputStream fos = new java.io.FileOutputStream(tempFile);
+            fos.write(bitmapData);
+            fos.flush();
+            fos.close();
+
+            return Uri.fromFile(tempFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Failed to create image file", Toast.LENGTH_SHORT).show();
+            return null;
+        }
     }
 
-    public void checkBook(){
+
+
+//    private Uri getImageUri(Bitmap bitmap) {
+//        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+//        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+//        String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "book_image", null);
+//        return Uri.parse(path);
+//    }
+
+    public void checkBook() {
         String bookName = etBookName.getText().toString().trim();
         String author = etAuthorName.getText().toString().trim();
         String genre = etGenre.getText().toString().trim();
@@ -169,35 +183,66 @@ public class AddBook extends AppCompatActivity {
             Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
             return;
         }
-        String userID = currentUser.getUid();
 
-        booksReference.orderByChild("bookName").equalTo(bookName).get().addOnCompleteListener(task -> {
-            if (task.isSuccessful() && task.getResult().exists()) {
-                for (DataSnapshot bookSnapshot : task.getResult().getChildren()) {
-                    Book existingBook = bookSnapshot.getValue(Book.class);
-                    if (existingBook != null && existingBook.getAuthor().equals(author) && existingBook.getGenre().equals(genre)) {
-                        // הספר כבר קיים, נוסיף את ה-UID של המשתמש לרשימת ה-owners
-                        DatabaseReference existingBookRef = bookSnapshot.getRef();
-                        existingBookRef.child("owners").child(userID).setValue(true);
-                        Toast.makeText(AddBook.this, "הספר כבר קיים - נוסף לבעלים", Toast.LENGTH_SHORT).show();
-                        setResult(RESULT_OK);
-                        finish(); // חוזר למסך הקודם
-                        return;
-                    }
-                    else {
+        if (currentUser == null) {
+            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String userID = currentUser.getUid();
+        DatabaseReference userReference = FirebaseDatabase.getInstance().getReference("Users").child(userID);
+
+        userReference.get().addOnSuccessListener(userSnapshot -> {
+            if (userSnapshot.exists()) {
+                String cityUser = userSnapshot.child("city").getValue(String.class);
+
+                booksReference.orderByChild("bookName").equalTo(bookName).get().addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult().exists()) {
+                        for (DataSnapshot bookSnapshot : task.getResult().getChildren()) {
+                            Book existingBook = bookSnapshot.getValue(Book.class);
+                            if (existingBook != null && existingBook.getAuthor().equals(author) && existingBook.getGenre().equals(genre)) {
+                                DatabaseReference existingBookRef = bookSnapshot.getRef();
+
+                                // הוספת המשתמש לרשימת הבעלים
+                                existingBookRef.child("owners").child(userID).setValue(true);
+
+                                // בדיקה והוספה של העיר
+                                existingBookRef.child("cities").addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot citySnapshot) {
+                                        if (!citySnapshot.hasChild(cityUser)) {
+                                            existingBookRef.child("cities").child(cityUser).setValue(true);
+                                        }
+
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+                                        Toast.makeText(AddBook.this, "Error checking cities", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+
+                                Toast.makeText(AddBook.this, "הספר כבר קיים - נוסף לבעלים", Toast.LENGTH_SHORT).show();
+                                setResult(RESULT_OK);
+                                finish();
+                                return;
+                            }
+                        }
+
+                        // לא נמצא ספר עם אותו מחבר וז׳אנר
+                        saveBookToFirebase();
+                    } else {
+                        // הספר לא קיים בכלל
                         saveBookToFirebase();
                     }
-                }
+                });
+            } else {
+                Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show();
             }
-            else{
-                saveBookToFirebase();
-            }
+        }).addOnFailureListener(e -> {
+            Toast.makeText(this, "Failed to retrieve user data", Toast.LENGTH_SHORT).show();
         });
-
     }
-
-
-
 
     public void saveBookToFirebase() {
 
@@ -210,7 +255,6 @@ public class AddBook extends AppCompatActivity {
             return;
         }
 
-
         if (currentUser == null) {
             Toast.makeText(this, "משתמש לא מחובר", Toast.LENGTH_SHORT).show();
             return;
@@ -219,29 +263,44 @@ public class AddBook extends AppCompatActivity {
         String bookKID = booksReference.push().getKey();
         String userID = currentUser.getUid();
 
-        Book book = new Book(bookKID,bookName, author, genre,"", userID);
+        Book book = new Book(bookKID, bookName, author, genre, "");
 
-//        booksReference.child(bookKID).setValue(book);
-//        uploadImage(bookName,bookKID);
-//        finish();
-        booksReference.child(bookKID).setValue(book).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void unused) {
-                if (chooseGallery || chooseCamera) {
-                    uploadImage(bookName,bookKID);
-                } else {
-                    Toast.makeText(AddBook.this, "Book added without image", Toast.LENGTH_SHORT).show();
-                    setResult(RESULT_OK);
-                    finish(); // חוזר למסך הקודם
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(AddBook.this, "Failed to add book", Toast.LENGTH_SHORT).show();
-            }
+        DatabaseReference bookRef = booksReference.child(bookKID);
+
+        // קודם מוסיפים את פרטי הספר
+        bookRef.setValue(book).addOnSuccessListener(unused -> {
+
+            // מוסיפים את המשתמש לרשימת הבעלים
+            bookRef.child("owners").child(userID).setValue(true);
+
+            // שולפים את עיר המשתמש
+            FirebaseDatabase.getInstance().getReference("Users").child(userID)
+                    .child("city").get().addOnSuccessListener(citySnapshot -> {
+
+                        String city = citySnapshot.getValue(String.class);
+                        if (city != null && !city.isEmpty()) {
+                            // מוסיפים את העיר לרשימת הערים
+                            bookRef.child("cities").child(city).setValue(true);
+                        }
+
+                        // מעלים תמונה אם יש
+                        if (chooseGallery || chooseCamera) {
+                            uploadImage(bookName, bookKID);
+                        } else {
+                            Toast.makeText(AddBook.this, "Book added without image", Toast.LENGTH_SHORT).show();
+                            setResult(RESULT_OK);
+                            finish();
+                        }
+
+                    }).addOnFailureListener(e -> {
+                        Toast.makeText(AddBook.this, "נכשל בקריאת עיר המשתמש", Toast.LENGTH_SHORT).show();
+                    });
+
+        }).addOnFailureListener(e -> {
+            Toast.makeText(AddBook.this, "Failed to add book", Toast.LENGTH_SHORT).show();
         });
     }
+
 
     private void uploadImage(String bookName,String bookKID) {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -288,131 +347,6 @@ public class AddBook extends AppCompatActivity {
             }
         }
     }
-
-
-
-
-//    public void readImage(View view) {
-//        int id = view.getId();
-//        if (id == R.id.readStamp) {
-//            refImg = refBooks.child(lastStamp + ".png");
-//            try {
-//                localFile = File.createTempFile(lastStamp, "png");
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//        } else if (id == R.id.readGallery) {
-//            refImg = refBooks.child(lastGallery + ".jpg");
-//            try {
-//                localFile = File.createTempFile(lastGallery, "jpg");
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
-//
-//        // Download the image file and  display it
-//        final ProgressDialog pd = ProgressDialog.show(this, "Image download", "downloading...", true);
-//        refImg.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-//            @Override
-//            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-//                pd.dismiss();
-//                Toast.makeText(AddBook.this, "Image download success", Toast.LENGTH_LONG).show();
-//                String filePath = localFile.getPath();
-//                Bitmap bitmap = BitmapFactory.decodeFile(filePath);
-//                ivBookCover.setImageBitmap(bitmap);
-//            }
-//        }).addOnFailureListener(new OnFailureListener() {
-//            @Override
-//            public void onFailure(@NonNull Exception exception) {
-//                pd.dismiss();
-//                Toast.makeText(AddBook.this, "Image download failed", Toast.LENGTH_LONG).show();
-//            }
-//        });
-//    }
-
-
-
-//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//
-//        if (resultCode == RESULT_OK) {
-//            if (requestCode == REQUEST_CAMERA || requestCode == REQUEST_GALLERY) {
-//                // קבלת התמונה מהמצלמה או הגלריה
-//                Uri selectedImageUri = (requestCode == REQUEST_CAMERA) ? imageUri : data.getData();
-//
-//                // הצגת התמונה ב-ImageView
-//                ivBookCover.setImageURI(selectedImageUri);
-//
-//                // העלאת התמונה לשירות חיצוני (Imgur) ושמירת הקישור ב-Firebase
-//                uploadImageToImgur(selectedImageUri);
-//            }
-//        }
-//    }
-
-//    private void uploadImageToImgur(Uri imageUri) {
-//        String clientId = "YOUR_IMGUR_CLIENT_ID"; // Replace with your Imgur client ID
-//        String url = "https://api.imgur.com/3/image";
-//
-//        try {
-//            InputStream inputStream = getContentResolver().openInputStream(imageUri);
-//            byte[] imageData = IOUtils.toByteArray(inputStream);
-//
-//            RequestBody requestBody = RequestBody.create(imageData, MediaType.parse("image/*"));
-//            MultipartBody.Part body = MultipartBody.Part.createFormData("image", "image.jpg", requestBody);
-//
-//            OkHttpClient client = new OkHttpClient();
-//            Request request = new Request.Builder()
-//                    .url(url)
-//                    .addHeader("Authorization", "Client-ID " + clientId)
-//                    .post(new MultipartBody.Builder()
-//                            .setType(MultipartBody.FORM)
-//                            .addFormDataPart("image", "image.jpg", RequestBody.create(imageData, MediaType.parse("image/*")))
-//                            .build())
-//                    .build();
-//
-//            client.newCall(request).enqueue(new Callback() {
-//                @Override
-//                public void onFailure(Call call, IOException e) {
-//                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-//                }
-//
-//                @Override
-//                public void onResponse(Call call, Response response) throws IOException {
-//                    if (response.isSuccessful()) {
-//                        String responseBody = response.body().string();
-//                        JSONObject jsonObject = new JSONObject(responseBody);
-//                        String imageUrl = jsonObject.getJSONObject("data").getString("link");
-//
-//                        // Save the image URL to Firebase Realtime Database
-//                        saveImageLinkToDatabase(imageUrl);
-//                    } else {
-//                        runOnUiThread(() -> Toast.makeText(MainActivity.this, "Upload failed.", Toast.LENGTH_SHORT).show());
-//                    }
-//                }
-//            });
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-//        }
-//    }
-//
-//
-//    private void openCamera() {
-//        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//        if (intent.resolveActivity(getPackageManager()) != null) {
-//            File photoFile = createImageFile();
-//            if (photoFile != null) {
-//                imageUri = FileProvider.getUriForFile(this, "com.example.yourapp.fileprovider", photoFile);
-//                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-//                startActivityForResult(intent, REQUEST_CAMERA);
-//            }
-//        }
-//    }
-//
-//    private void openGallery() {
-//        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-//        startActivityForResult(intent, REQUEST_GALLERY);
-//    }
 
 
 }

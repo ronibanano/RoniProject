@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,6 +15,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
+import com.example.roniproject.Activities.ChatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -94,7 +96,7 @@ public class ChatNotificationService extends Service {
                                                 (senderCity != null ? " (" + senderCity + ")" : "");
                                         String message = messageText != null ? messageText : "הודעה חדשה בצ'אט";
 
-                                        sendNotification(title, message);
+                                        sendNotification(title, message, chatSnapshot.getKey(), senderId);
                                     })
                                     .addOnFailureListener(e -> Log.e(TAG, "Failed to get sender user data", e));
                         }
@@ -111,13 +113,26 @@ public class ChatNotificationService extends Service {
         messagesRef.addValueEventListener(messagesListener);
     }
 
-    private void sendNotification(String title, String message) {
+    private void sendNotification(String title, String message, String chatId, String otherUserId) {
+        Intent intent = new Intent(this, ChatActivity.class);
+        intent.putExtra("chatId", chatId);
+        intent.putExtra("otherUserId", otherUserId);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                this,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(title)
                 .setContentText(message)
                 .setSmallIcon(R.drawable.ic_chat)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
+                .setContentIntent(pendingIntent) // 👈 לחיצה על ההתראה תוביל לצ'אט
                 .build();
 
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -125,6 +140,7 @@ public class ChatNotificationService extends Service {
             manager.notify((int) System.currentTimeMillis(), notification);
         }
     }
+
 
     private Notification createServiceNotification(String contentText) {
         return new NotificationCompat.Builder(this, CHANNEL_ID)

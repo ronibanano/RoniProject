@@ -1,26 +1,29 @@
 package com.example.roniproject.Obj;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Book {
-    public Book() {
-    }
+
     private String bookName, author, genre;
     private String bookCoverUrl;
     private String bookKID;
-    private Map<String, Boolean> owners; // מפת משתמשים המחזיקים את הספר
+    private Map<String, Boolean> owners;
+    private Map<String, Boolean> cities;
 
+    public Book() {
+    }
 
-
-    public Book(String bookKID,String bookName, String author, String genre, String bookCoverUrl, String userID) {
+    public Book(String bookKID,String bookName, String author, String genre, String bookCoverUrl) {
         this.bookKID = bookKID;
         this.bookName = bookName;
         this.author = author;
         this.genre = genre;
         this.bookCoverUrl = bookCoverUrl;
         this.owners = new HashMap<>();
-        this.owners.put(userID, true); // הוספת המשתמש הראשון
+        this.cities = new HashMap<>();
+        //this.owners.put(userID, true); // הוספת המשתמש הראשון
 
 
     }
@@ -63,9 +66,22 @@ public class Book {
         this.bookCoverUrl = bookCoverUrl;
     }
 
-    public Map<String, Boolean> getOwners() { return owners; }
+    public Map<String, Boolean> getOwners() {
+        return owners;
+    }
 
-    public void setOwners(Map<String, Boolean> owners) { this.owners = owners; }
+    public void setOwners(Map<String, Boolean> owners) {
+        this.owners = owners;
+    }
 
-    public void addOwner(String userId) { this.owners.put(userId, true); }
+    public Map<String, Boolean> getCities() {
+        return cities;
+    }
+
+    public void setCities(Map<String, Boolean> cities) {
+        this.cities = cities;
+    }
+
+
+    // public void addOwner(String userId) { this.owners.put(userId, true); }
 }

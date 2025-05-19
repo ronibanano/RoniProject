@@ -17,7 +17,7 @@ import android.widget.Toast;
 import com.example.roniproject.Activities.ChatActivity;
 import com.example.roniproject.Obj.ChatPreview;
 import com.example.roniproject.Obj.ChatPreviewAdapter;
-import com.example.roniproject.Obj.Users;
+import com.example.roniproject.Obj.User;
 import com.example.roniproject.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -78,7 +78,7 @@ public class ChatFragment extends Fragment {
                         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot userSnapshot) {
-                                Users otherUser = userSnapshot.getValue(Users.class);
+                                User otherUser = userSnapshot.getValue(User.class);
                                 if (otherUser != null) {
                                     chatPreviews.add(new ChatPreview(otherUserId, otherUser.getFullName(), otherUser.getCity()));
                                     chatPreviewAdapter.notifyDataSetChanged();

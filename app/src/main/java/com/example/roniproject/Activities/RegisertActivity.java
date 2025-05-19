@@ -17,7 +17,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.roniproject.HomeScreen;
-import com.example.roniproject.Obj.Users;
+import com.example.roniproject.Obj.User;
 import com.example.roniproject.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -31,7 +31,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisertActivity extends AppCompatActivity {
 
-    EditText etEmail, etPassword, etFullName, etCity, etPhoneNumber;
+    EditText etEmail, etPassword, etFullName, etCity;
     TextView tvClickLogin;
     Button btnRegister;
     ProgressBar progressBar;
@@ -49,7 +49,6 @@ public class RegisertActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         etFullName = findViewById(R.id.etFullName);
         etCity = findViewById(R.id.etCity);
-        etPhoneNumber = findViewById(R.id.etPhoneNumber);
         tvClickLogin = findViewById(R.id.loginNow);
         btnRegister = findViewById(R.id.btnRegister);
         progressBar = findViewById(R.id.progressBar);
@@ -76,9 +75,8 @@ public class RegisertActivity extends AppCompatActivity {
                 password = String.valueOf(etPassword.getText());
                 fullName = String.valueOf(etFullName.getText());
                 city = String.valueOf(etCity.getText());
-                phoneNumber = String.valueOf(etPhoneNumber.getText());
 
-                if (email.isEmpty() || password.isEmpty() || password.length() < 6 || fullName.isEmpty() || city.isEmpty()|| phoneNumber.isEmpty()|| phoneNumber.length()!=10) {
+                if (email.isEmpty() || password.isEmpty() || password.length() < 6 || fullName.isEmpty() || city.isEmpty()) {
                     adb.setMessage("Incorrect details");
                     adb.setPositiveButton("ok", new DialogInterface.OnClickListener() {
                         @Override
@@ -105,7 +103,7 @@ public class RegisertActivity extends AppCompatActivity {
                                     FirebaseUser user = mAuth.getCurrentUser();
 
                                     if (user != null) {
-                                        registerUser(user.getUid(), email, fullName, city, phoneNumber);
+                                        registerUser(user.getUid(), email, fullName, city);
                                     }
 
                                     Intent intent = new Intent(context, HomeScreen.class);
@@ -198,9 +196,9 @@ public class RegisertActivity extends AppCompatActivity {
 //
     }
 
-    private void registerUser(String userId,String email, String fullName, String city, String phoneNumber) {
+    private void registerUser(String userId,String email, String fullName, String city) {
         databaseReference = FirebaseDatabase.getInstance().getReference("Users");
-        Users user = new Users(email, fullName, city, phoneNumber);
+        User user = new User(userId,email, fullName, city);
 
         databaseReference.child(userId).setValue(user)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {

@@ -25,7 +25,7 @@ import android.widget.Toast;
 import com.example.roniproject.Activities.AddBook;
 import com.example.roniproject.Obj.Book;
 import com.example.roniproject.Obj.BookAdapter;
-import com.example.roniproject.Obj.Users;
+import com.example.roniproject.Obj.User;
 import com.example.roniproject.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -138,7 +138,7 @@ public class ProfileFragment extends Fragment {
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Users user = snapshot.getValue(Users.class);
+                User user = snapshot.getValue(User.class);
                 if (user != null) {
                     tvFullName.setText(user.getFullName());
                     tvCity.setText(user.getCity());

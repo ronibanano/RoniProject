@@ -6,7 +6,7 @@
         android:title="Home" />
     <item
         android:id="@+id/searchFragment"
-        android:icon="@drawable/ic_shearch2"
+        android:icon="@drawable/ic_search3"
         android:title="Search" />
     <item
         android:id="@+id/chatFragment"

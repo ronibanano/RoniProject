@@ -1,14 +1,25 @@
 package com.example.roniproject.Obj;
 
-public class Users {
-    public Users() {
-    }
-    String email, fullName, city, phoneNumber;
-    public Users(String email, String fullName, String city, String phoneNumber) {
+public class User {
+
+     private String userId, email, fullName, city;
+
+    public User(String userId, String email, String fullName, String city) {
+        this.userId = userId;
         this.email = email;
         this.fullName = fullName;
         this.city = city;
-        this.phoneNumber=phoneNumber;
+
+    }
+
+    public User() {
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getEmail() {
@@ -35,10 +46,4 @@ public class Users {
         this.city = city;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
 }
