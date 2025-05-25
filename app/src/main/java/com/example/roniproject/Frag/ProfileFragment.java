@@ -43,7 +43,6 @@ public class ProfileFragment extends Fragment {
     private static final int RESULT_CODE = 1;
 
     private TextView tvFullName, tvCity;
-    private ImageView imageProfile;
     private ListView personalBooksList;
     List<Book> booksList;
     BookAdapter bookAdapter;
@@ -68,7 +67,6 @@ public class ProfileFragment extends Fragment {
 
         tvFullName = view.findViewById(R.id.tv_full_name);
         tvCity = view.findViewById(R.id.tv_city);
-        imageProfile = view.findViewById(R.id.imageProfile);
         personalBooksList = view.findViewById(R.id.personalBookList);
         btnAddBook = view.findViewById(R.id.btn_add_book);
 

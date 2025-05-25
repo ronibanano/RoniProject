@@ -129,51 +129,7 @@ public class ChatActivity extends AppCompatActivity {
         String messageId = chatRef.push().getKey();
         if (messageId != null) {
             chatRef.child(messageId).setValue(msg);
-            sendNotification(receiverId, "New message", text); // שליחת התראה
         }
     }
 
-    // שליחת התראה ל־FCM
-    private void sendNotification(String receiverId, String title, String body) {
-        // לקבל את ה־FCM token של המשתמש שמקבל את ההודעה
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("Users").child(receiverId);
-        userRef.child("fcmToken").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                String token = task.getResult().getValue(String.class);
-
-                if (token != null) {
-                    try {
-                        JSONObject json = new JSONObject();
-                        JSONObject notification = new JSONObject();
-                        notification.put("title", title);
-                        notification.put("body", body);
-                        json.put("to", token);
-                        json.put("notification", notification);
-
-                        // שליחת בקשה ל־FCM
-                        RequestQueue queue = Volley.newRequestQueue(ChatActivity.this);
-                        String url = "https://fcm.googleapis.com/fcm/send";
-
-                        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, json,
-                                response -> {},
-                                error -> {}
-                        ) {
-                            @Override
-                            public Map<String, String> getHeaders() throws AuthFailureError {
-                                Map<String, String> headers = new HashMap<>();
-                                headers.put("Content-Type", "application/json");
-                                headers.put("Authorization", "key=BNxWyD7HbjhU69_AbWXzPNYCoeJ7wmxeUQ0aAec_WVuec7gNf6BK_Z3Fimj_iFN9thLxMfHYM7QaNL5YBMBp0Hw");
-                                return headers;
-                            }
-                        };
-
-                        queue.add(request);
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-    }
 }

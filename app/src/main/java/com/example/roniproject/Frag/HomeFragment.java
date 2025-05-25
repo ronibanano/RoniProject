@@ -136,7 +136,7 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        // הוספת לחיצה על ספר
+        // לחיצה על ספר
         allbooksList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

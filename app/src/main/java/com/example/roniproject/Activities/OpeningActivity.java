@@ -25,37 +25,6 @@ public class OpeningActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
         prefs.edit().remove("serviceStarted").apply();
 
-//        // יצירת Notification Channel לאנדרואיד 8+
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            NotificationChannel channel = new NotificationChannel(
-//                    "chat_messages", // זהה למה שתשתמש בהתראה עצמה
-//                    "הודעות צ'אט",
-//                    NotificationManager.IMPORTANCE_HIGH
-//            );
-//            channel.setDescription("התראות עבור הודעות חדשות בצ'אט");
-//
-//            NotificationManager manager = getSystemService(NotificationManager.class);
-//            if (manager != null) {
-//                manager.createNotificationChannel(channel);
-//            }
-//        }
-//
-//        FirebaseMessaging.getInstance().getToken()
-//                .addOnCompleteListener(task -> {
-//                    if (!task.isSuccessful()) {
-//                        Log.w("FCM", "Fetching FCM registration token failed", task.getException());
-//                        return;
-//                    }
-//
-//                    String token = task.getResult();
-//                    Log.d("FCM", "Token: " + token);
-//
-//                    FirebaseAuth auth = FirebaseAuth.getInstance();
-//                    if (auth.getCurrentUser() != null) {
-//                        String uid = auth.getCurrentUser().getUid();
-//                        FirebaseDatabase.getInstance().getReference("Users").child(uid).child("fcmToken").setValue(token);
-//                    }
-//                });
 
         btnChooseLogin = findViewById(R.id.btnChooseLogin);
         btnChooseRegister = findViewById(R.id.btnChooseRegister);

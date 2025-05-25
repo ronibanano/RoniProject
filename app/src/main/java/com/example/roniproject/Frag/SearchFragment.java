@@ -123,7 +123,7 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        Toast toast = Toast.makeText(requireContext(), "You selected " + parent.getItemAtPosition(position), Toast.LENGTH_SHORT);
+        Toast.makeText(requireContext(), "you selected " + parent.getItemAtPosition(position), Toast.LENGTH_SHORT).show();
     }
 
     @Override
