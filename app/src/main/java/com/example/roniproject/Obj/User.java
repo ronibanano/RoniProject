@@ -1,107 +1,123 @@
 package com.example.roniproject.Obj;
 
 /**
- * The type User.
+ * Represents a User object with their essential details.
+ * <p>
+ * This class is a Plain Old Java Object (POJO) used to model user data,
+ * primarily for interaction with Firebase Realtime Database. It includes fields
+ * for the user's unique ID (typically from Firebase Authentication), email address,
+ * full name, and city.
+ * </p>
+ * <p>
+ * It provides constructors for creating {@code User} instances and getter/setter
+ * methods for accessing and modifying its properties.
+ * </p>
+ *
+ * @see com.example.roniproject.Activities.LoginActivity
+ * @see com.example.roniproject.Activities.RegisertActivity
+ * @see com.example.roniproject.Frag.ProfileFragment
  */
 public class User {
 
-     private String userId;
-     private String email;
-     private String fullName;
-     private String city;
+    private String userId;
+    private String email;
+    private String fullName;
+    private String city;
 
     /**
-     * Instantiates a new User.
+     * Instantiates a new {@code User} with specified details.
      *
-     * @param userId   the user id
-     * @param email    the email
-     * @param fullName the full name
-     * @param city     the city
+     * @param userId   The unique identifier for the user (e.g., Firebase UID).
+     * @param email    The email address of the user.
+     * @param fullName The full name of the user.
+     * @param city     The city where the user resides.
      */
     public User(String userId, String email, String fullName, String city) {
         this.userId = userId;
         this.email = email;
         this.fullName = fullName;
         this.city = city;
-
     }
 
     /**
-     * Instantiates a new User.
+     * Default constructor.
+     * <p>
+     * Required for calls to {@link com.google.firebase.database.DataSnapshot#getValue(Class)}.
+     * Initializes all fields to their default values (null).
+     * </p>
      */
     public User() {
     }
 
     /**
-     * Gets user id.
+     * Gets the unique ID of the user.
      *
-     * @return the user id
+     * @return The user's ID.
      */
     public String getUserId() {
         return userId;
     }
 
     /**
-     * Sets user id.
+     * Sets the unique ID of the user.
      *
-     * @param userId the user id
+     * @param userId The new ID for the user.
      */
     public void setUserId(String userId) {
         this.userId = userId;
     }
 
     /**
-     * Gets email.
+     * Gets the email address of the user.
      *
-     * @return the email
+     * @return The user's email address.
      */
     public String getEmail() {
         return email;
     }
 
     /**
-     * Sets email.
+     * Sets the email address of the user.
      *
-     * @param email the email
+     * @param email The new email address for the user.
      */
     public void setEmail(String email) {
         this.email = email;
     }
 
     /**
-     * Gets full name.
+     * Gets the full name of the user.
      *
-     * @return the full name
+     * @return The user's full name.
      */
     public String getFullName() {
         return fullName;
     }
 
     /**
-     * Sets full name.
+     * Sets the full name of the user.
      *
-     * @param fullName the full name
+     * @param fullName The new full name for the user.
      */
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
 
     /**
-     * Gets city.
+     * Gets the city where the user resides.
      *
-     * @return the city
+     * @return The user's city.
      */
     public String getCity() {
         return city;
     }
 
     /**
-     * Sets city.
+     * Sets the city where the user resides.
      *
-     * @param city the city
+     * @param city The new city for the user.
      */
     public void setCity(String city) {
         this.city = city;
     }
-
 }

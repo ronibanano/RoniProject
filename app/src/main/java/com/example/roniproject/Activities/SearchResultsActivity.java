@@ -37,8 +37,38 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Activity to display search results for books.
+ * <p>
+ * This activity receives search criteria (search query and search type - by book name, author,
+ * genre, or city) from the initiating Intent. It then queries the Firebase Realtime Database
+ * for books matching the criteria.
+ * </p>
+ * <p>
+ * The results are displayed in a ListView. Users can click on a book to see a list of its owners.
+ * If the search was filtered by city, only owners in that city will be shown.
+ * From the list of owners, users can select an owner to initiate a chat with them.
+ * </p>
+ * <p>
+ * The activity also provides a "Filter" button to sort the displayed books alphabetically by name.
+ * If no books match the search criteria, a "No results" message is displayed.
+ * </p>
+ * <p>
+ * This class interacts with Firebase for:
+ * <ul>
+ *     <li>Fetching book data from the "Books" node.</li>
+ *     <li>Fetching user data (full name, city) from the "Users" node to display owner information.</li>
+ *     <li>Getting the current authenticated user ID.</li>
+ * </ul>
+ * </p>
+ *
+ * @see Book
+ * @see BookAdapter
+ * @see ChatActivity
+ * @see FirebaseDatabase
+ * @see FirebaseAuth
+ */
 public class SearchResultsActivity extends AppCompatActivity {
-
 
     private Button btnFilter;
     private ListView listBookResults;
@@ -46,9 +76,21 @@ public class SearchResultsActivity extends AppCompatActivity {
     private BookAdapter bookAdapter;
     private List<Book> bookList = new ArrayList<>();
 
-
-
-
+    /**
+     * Called when the activity is first created.
+     * <p>
+     * Initializes UI components (ListView, Button, TextView), sets up the {@link BookAdapter},
+     * retrieves search parameters (search query and type) from the incoming {@link Intent}.
+     * It then fetches book data from Firebase Realtime Database based on these parameters
+     * and populates the ListView. A click listener is set on the filter button to sort results,
+     * and item click listeners on the ListView to show owner details.
+     * </p>
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState(Bundle)}.
+     *                           <b><i>Note: Otherwise it is null.</i></b>
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -183,25 +225,20 @@ public class SearchResultsActivity extends AppCompatActivity {
 
         }
 
-
-//        String bookName = intent.getStringExtra("bookName");
-//        String author = intent.getStringExtra("author");
-//        String genre = intent.getStringExtra("genre");
-//        String location = intent.getStringExtra("location");
-//
-//        // ניקוי הערכים מרווחים ואותיות גדולות
-//        if (bookName != null) bookName = bookName.trim().toLowerCase();
-//        if (author != null) author = author.trim().toLowerCase();
-//        if (genre != null) genre = genre.trim().toLowerCase();
-//        if (location != null) location = location.trim().toLowerCase();
-//
-//        Log.d("SearchDebug", "location שהוזן: " + location);
-//
-//
-//        searchBooks(bookName, author, genre, location);
-
     }
 
+    /**
+     * Displays a dialog listing the owners of a specific book who are located in a given city.
+     * <p>
+     * Fetches the list of owners for the given {@link Book} from Firebase. Then, for each owner,
+     * it retrieves their full name and city from the "Users" node in Firebase.
+     * Only owners residing in the {@code cityFilter} and who are not the current user are displayed.
+     * Selecting an owner from the dialog initiates a chat with them via {@link #openOrCreateChat(String, String)}.
+     * </p>
+     *
+     * @param book       The book for which to display owners.
+     * @param cityFilter The city to filter owners by. Only owners in this city will be shown.
+     */
     private void showOwnersByCityDialog(Book book, String cityFilter) {
         DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("Users");
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -277,7 +314,16 @@ public class SearchResultsActivity extends AppCompatActivity {
         });
     }
 
-
+    /**
+     * Displays a dialog listing all owners of a specific book, excluding the current user.
+     * <p>
+     * Fetches the list of owners for the given {@link Book} from Firebase. Then, for each owner,
+     * it retrieves their full name and city from the "Users" node in Firebase.
+     * Selecting an owner from the dialog initiates a chat with them via {@link #openOrCreateChat(String, String)}.
+     * </p>
+     *
+     * @param book The book for which to display owners.
+     */
     private void showOwnersDialog(Book book) {
         DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("Users");
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -348,11 +394,20 @@ public class SearchResultsActivity extends AppCompatActivity {
         });
     }
 
-
-
-
+    /**
+     * Creates a unique chat ID and starts the {@link ChatActivity} between the current user and another user.
+     * <p>
+     * The chat ID is generated by concatenating the two user IDs in a consistent order
+     * (lexicographically smaller ID first) to ensure uniqueness for each pair of users.
+     * The {@link ChatActivity} is then launched with the chat ID and the other user's ID.
+     * </p>
+     *
+     * @param currentUserId The ID of the currently logged-in user.
+     * @param otherUserId   The ID of the user with whom to start or open a chat.
+     */
     private void openOrCreateChat(String currentUserId, String otherUserId) {
         String chatId;
+        // Ensure consistent chatId by ordering user IDs lexicographically
         if (currentUserId.compareTo(otherUserId) < 0) {
             chatId = currentUserId + "_" + otherUserId;
         } else {
@@ -361,243 +416,7 @@ public class SearchResultsActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("chatId", chatId);
-        intent.putExtra("otherUserId", otherUserId);
+        intent.putExtra("otherUserId", otherUserId); // Pass the other user's ID to ChatActivity
         startActivity(intent);
     }
-
-//    private void searchBooks(String bookName, String author, String genre, String location) {
-//       // DatabaseReference booksRef = FirebaseDatabase.getInstance().getReference("Books");
-//        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
-//
-//        // שליפת כל המשתמשים מראש ושמירת העיר שלהם במפה
-//        usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//
-//                Map<String, String> userCities = new HashMap<>();
-//
-//                // שמירת המידע על כל המשתמשים במפה (userID -> city)
-//                for (DataSnapshot userSnapshot : snapshot.getChildren()) {
-//                    String userID = userSnapshot.getKey();
-//                    Log.d("SearchDebug", "userID: " + userID);
-//                    if(userSnapshot.child("city").exists()){
-//                        String city = userSnapshot.child("city").getValue(String.class);
-//                        Log.d("SearchDebug", "userID: " + userID + ", city: [" + city + "]");
-//                    }else{
-//                        Log.w("SearchDebug", "userID: " + userID + " - city not found");
-//                    }
-//                    String city = userSnapshot.child("city").getValue(String.class);
-//
-//                    // הוספת הלוג כאן לראות מה נישלח מה־Firebase
-//                    Log.d("SearchDebug", "userID: " + userID + ", city: [" + city + "]");
-//
-//                    if (city != null) {
-//                        userCities.put(userID, city.trim().toLowerCase()); // שמירת העיר באותיות קטנות להשוואה נוחה
-//                    }
-//                }
-//
-//                if(location != null){
-//                    // כעת יש לנו את כל המשתמשים בזיכרון, אפשר להתחיל לעבור על הספרים
-//                    fetchBooks(bookName, author, genre, location, userCities);
-//                }
-//                else {
-//                    noLocation(bookName, author, genre);
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//                Log.e("SearchDebug", "Firebase error: " + error.getMessage());
-//            }
-//        });
-//
-//
-//    }
-//
-//    // פונקציה לשליפת ספרים לאחר שיש לנו את המידע על המשתמשים
-//    private void fetchBooks(String bookName, String author, String genre, String location, Map<String, String> userCities) {
-//        DatabaseReference booksRef = FirebaseDatabase.getInstance().getReference("Books");
-//
-//        // אוסף את כל ה-UIDs של משתמשים שגרים בעיר שהוזנה
-//        List<String> matchingUserIDs = new ArrayList<>();
-//        if (location != null && !location.trim().isEmpty()) {
-//            String normalizedLocation = location.trim().toLowerCase();
-//            for (Map.Entry<String, String> entry : userCities.entrySet()) {
-//                String city = entry.getValue();
-//
-//                Log.d("SearchDebug", "עיר שהוזנה עבור משתמש: " + city);
-//
-//                if (city != null && city.trim().equalsIgnoreCase(normalizedLocation)) {
-//                    matchingUserIDs.add(entry.getKey());
-//                }
-//            }
-//            Log.d("SearchDebug", "matchingUserIDs: " + matchingUserIDs);
-//        } else {
-//            // אם לא הוזנה עיר, נכלול את כל המשתמשים
-//            matchingUserIDs.addAll(userCities.keySet());
-//        }
-//
-//        booksRef.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//
-//                List<Book> tempBookList = new ArrayList<>();//ספרים שהערים תואמים לחיפוש
-//
-//                for (DataSnapshot bookSnapshot : snapshot.getChildren()) {
-//                    Book book = bookSnapshot.getValue(Book.class);
-//
-//                    if (book == null) continue;
-//
-//                    Map<String, Boolean> ownersMap = book.getOwners();
-//                    if (ownersMap == null || ownersMap.isEmpty()) continue;
-//
-//                    for (String ownerID : ownersMap.keySet()) {
-//                        if (matchingUserIDs.contains(ownerID)) {
-//                            Log.d("SearchDebug", "הוספתי ספר: " + book.getBookName());
-//                            // אם נמצא בעל תואם, הוסף את הספר לרשימת התוצאות
-//                            tempBookList.add(book);
-//                            break; // אין צורך לבדוק יותר, המשך לספר הבא
-//                        }
-//                    }
-//
-//                }
-//
-//                Log.d("SearchDebug", "ספרים מתאימים למיקום: " + tempBookList);
-//
-//                haveLocation(tempBookList,bookName,author,genre);
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
-
-//        booksRef.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                bookList.clear();
-//                List<Book> tempBookList = new ArrayList<>();
-//
-//                for (DataSnapshot bookSnapshot : snapshot.getChildren()) {
-//                    Book book = bookSnapshot.getValue(Book.class);
-//                    Map<String, Boolean> ownersMap = book.getOwners();
-//
-//                    if (ownersMap != null && !ownersMap.isEmpty()) {
-//                        for (String ownerID : ownersMap.keySet()) {
-//                            String userCity = userCities.get(ownerID); // קבלת העיר ממפת המשתמשים
-//
-//                            // בדיקת התאמה לקריטריונים
-//                            if ((bookName.isEmpty() || book.getBookName().toLowerCase().contains(bookName.toLowerCase())) &&
-//                                    (author.isEmpty() || book.getAuthor().toLowerCase().contains(author.toLowerCase())) &&
-//                                    (genre.isEmpty() || book.getGenre().toLowerCase().contains(genre.toLowerCase())) &&
-//                                    (location.isEmpty() || (userCity != null && userCity.trim().equalsIgnoreCase(location.trim())))) {
-//
-////                                Log.d("SearchResults", "User entered city: " + location.toLowerCase());
-////                                Log.d("SearchResults", "City from database: " + userCity.toLowerCase());
-//
-////                                if (userCity != null && userCity.trim().equalsIgnoreCase(location.trim())) {
-////                                    Log.d("SearchResults", "City match found!");
-////                                } else {
-////                                    Log.d("SearchResults", "No match for city.");
-////                                }
-//
-//                                if (!tempBookList.contains(book)) { // הימנעות מכפילויות
-//                                    tempBookList.add(book);
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//
-//                // עדכון הרשימה והצגת הנתונים
-//                bookList.clear();
-//                bookList.addAll(tempBookList);
-//                bookAdapter.notifyDataSetChanged();
-//
-//                if (tempBookList.isEmpty()) {
-//                    noResults.setVisibility(View.VISIBLE);
-//                } else {
-//                    noResults.setVisibility(View.GONE);
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) { }
-//        });
-//    }
-
-//    private void noLocation(String bookName, String author, String genre) {
-//        DatabaseReference booksRef = FirebaseDatabase.getInstance().getReference("Books");
-//
-//        booksRef.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                bookList.clear();
-//                List<Book> tempBookList = new ArrayList<>();
-//
-//                for (DataSnapshot bookSnapshot : snapshot.getChildren()){
-//                    Book book = bookSnapshot.getValue(Book.class);
-//
-//                    if ((bookName.isEmpty() || book.getBookName().toLowerCase().contains(bookName.toLowerCase())) &&
-//                            (author.isEmpty() || book.getAuthor().toLowerCase().contains(author.toLowerCase())) &&
-//                            (genre.isEmpty() || book.getGenre().toLowerCase().contains(genre.toLowerCase()))){
-//
-//                        if (!tempBookList.contains(book)) { // הימנעות מכפילויות
-//                            tempBookList.add(book);
-//                        }
-//                    }
-//                }
-//
-//                bookList.clear();
-//                bookList.addAll(tempBookList);
-//                bookAdapter.notifyDataSetChanged();
-//
-//                if (tempBookList.isEmpty()) {
-//                    noResults.setVisibility(View.VISIBLE);
-//                } else {
-//                    noResults.setVisibility(View.GONE);
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
-//
-//    }
-//
-//    private void haveLocation(List<Book> tempBookList, String bookName, String author, String genre) {
-//        List<Book> filteredBooks = new ArrayList<>();
-//
-//        for (Book book : tempBookList) {
-//            Log.d("SearchDebug", "בודק ספר: " + book.getBookName());
-//            boolean matches =
-//                    (bookName == null || bookName.isEmpty() || book.getBookName().toLowerCase().contains(bookName.toLowerCase())) &&
-//                            (author == null || author.isEmpty() || book.getAuthor().toLowerCase().contains(author.toLowerCase())) &&
-//                            (genre == null || genre.isEmpty() || book.getGenre().toLowerCase().contains(genre.toLowerCase()));
-//
-//            if (matches) {
-//                Log.d("SearchDebug", "הספר עבר את הפילטרים!");
-//                filteredBooks.add(book);
-//            }
-//        }
-//
-//        Log.d("SearchDebug", "ספרים שעברו את הפילטר: " + filteredBooks);
-//
-//
-//        bookList.clear();
-//        bookList.addAll(filteredBooks);
-//        bookAdapter.notifyDataSetChanged();
-//
-//        if (filteredBooks.isEmpty()) {
-//            noResults.setVisibility(View.VISIBLE);
-//        } else {
-//            noResults.setVisibility(View.GONE);
-//        }
-//
-//    }
-
 }
